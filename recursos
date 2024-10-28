@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Archivo de salida
+output_file="monitoreo_recursos.txt"
+
+
+echo -e "Tiempo\t\t%Total de CPU libre\t%Memoria libre\t%Disco libre" > $output_file
+
+
+duracion = 300
+
+intervalo = 60
+
+toma_datos =$((duracion/intervalo))
+
+for ((i=0; i<toma_datos; i++)); do
+
+    tiempo = $(date +"%Y-%m-%d %H:%M:%S")
+
+    cpu = $(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+  
+    memoria = $(free -h | grep "Mem" | awk '{print $4/$2 * 100.0}')
+
+    disco = $(df -h | grep "/$" | awk '{print $4}')
+
+    echo -e "$tiempo\t$cpu\t$memoria\t$disco" >> $output_file
+
+    sleep $intervalo
+done
+
+echo "Monitoreo existoso."
